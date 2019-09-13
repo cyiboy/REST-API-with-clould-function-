@@ -1,0 +1,22 @@
+[debug] [2019-09-13T21:07:04.889Z] ----------------------------------------------------------------------
+[debug] [2019-09-13T21:07:04.897Z] Command:       /usr/bin/node /usr/local/bin/firebase deploy
+[debug] [2019-09-13T21:07:04.898Z] CLI Version:   7.3.2
+[debug] [2019-09-13T21:07:04.898Z] Platform:      linux
+[debug] [2019-09-13T21:07:04.898Z] Node Version:  v8.10.0
+[debug] [2019-09-13T21:07:04.898Z] Time:          Fri Sep 13 2019 22:07:04 GMT+0100 (WAT)
+[debug] [2019-09-13T21:07:04.898Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2019-09-13T21:07:05.082Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-09-13T21:07:05.083Z] > authorizing via signed-in user
+[debug] [2019-09-13T21:07:05.083Z] [iam] checking project serverless-b0271 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2019-09-13T21:07:05.089Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/serverless-b0271:testIamPermissions  
+
+[debug] [2019-09-13T21:07:08.854Z] <<< HTTP RESPONSE 200
+[debug] [2019-09-13T21:07:08.860Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/serverless-b0271  
+ 
+[debug] [2019-09-13T21:07:09.843Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Deploying to 'serverless-b0271'...
+[info] 
+[info] i  deploying functions, hosting
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
