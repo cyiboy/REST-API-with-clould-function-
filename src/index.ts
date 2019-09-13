@@ -104,10 +104,10 @@ app.put('/fights/:id', async (request, response) => {
     const data = { 
         title
     };
-    const fightRef = await db.collection('fights')
+   /* const fightRef = await db.collection('fights')
         .doc(fightId)
         .set(data, { merge: true });
-
+*/
     response.json({
         id: fightId,
         data
