@@ -2,146 +2,60 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as express from 'express';
 import * as bodyParser from "body-parser";
+import * as firebaseHelper from 'firebase-functions-helper';
+ 
 
 admin.initializeApp(functions.config().firebase);
 const db = admin.firestore(); // Add this
-
+const contactsCollection = 'contacts';
 const app = express();
 const main = express();
 
 main.use('/api/v1', app);
 main.use(bodyParser.json());
-
+main.use(bodyParser.urlencoded({ extended: false }));
 export const webApi = functions.https.onRequest(main);
+interface Contact {
+  firstName: String
+  lastName: String
+  email: String
+}
 
-app.get('/warmup', (request, response) => {
-
-    response.send('Warming up friend.');
-
-});
-
-app.post('/fights', async (request, response) => {
+ // Add new contact
+app.post('/contacts', async (req, res) => {
   try {
-    const { winner, losser, title } = request.body;
-    const data = {
-      winner,
-      losser,
-      title
-    } 
-    const fightRef = await db.collection('fights').add(data);
-    const fight = await fightRef.get();
-
-    response.json({
-      id: fightRef.id,
-      data: fight.data()
-    });
-
-  } catch(error){
-
-    response.status(500).send(error);
-
-  }
-});
-
-app.get('/fights/:id', async (request, response) => {
-  try {
-    const fightId = request.params.id;
-
-    if (!fightId) throw new Error('Fight ID is required');
-
-    const fight = await db.collection('fights').doc(fightId).get();
-
-    if (!fight.exists){
-        throw new Error('Fight doesnt exist.')
-    }
-
-    response.json({
-      id: fight.id,
-      data: fight.data()
-    });
-
-  } catch(error){
-
-    response.status(500).send(error);
-
-  }
-});
-
-app.get('/fights', async (request, response) => {
-  try {
-
-    const fightQuerySnapshot = await db.collection('fights').get();
-    const fights = [];
-    fightQuerySnapshot.forEach(
-        (doc) => {
-            fights.push({
-                id: doc.id,
-                data: doc.data()
-            });
-        }
-    );
-
-    response.json(fights);
-
-  } catch(error){
-
-    response.status(500).send(error);
-
-  }
-
-});
-
-app.put('/fights/:id', async (request, response) => {
-  try {
-
-    const fightId = request.params.id;
-    const title = request.body.title;
-
-    if (!fightId) throw new Error('id is blank');
-
-    if (!title) throw new Error('Title is required');
-
-    const data = { 
-        title
-    };
-   /* const fightRef = await db.collection('fights')
-        .doc(fightId)
-        .set(data, { merge: true });
-*/
-    response.json({
-        id: fightId,
-        data
-    })
-
-
-  } catch(error){
-
-    response.status(500).send(error);
-
-  }
-
-});
-
-app.delete('/fights/:id', async (request, response) => {
-  try {
-
-    const fightId = request.params.id;
-
-    if (!fightId) throw new Error('id is blank');
-
-    await db.collection('fights')
-        .doc(fightId)
-        .delete();
-
-    response.json({
-        id: fightId,
-    })
-
-
-  } catch(error){
-
-    response.status(500).send(error);
-
-  }
-
-});
+      const contact: Contact = {
+          firstName: req.body['firstName'],
+          lastName: req.body['lastName'],
+          email: req.body['email']
+      }
+      
+      const newDoc = await firebaseHelper.firestore
+          .createNewDocument(db, contactsCollection, contact);
+      res.status(201).send(`Created a new contact: ${newDoc.id}`);
+  } catch (error) {
+      res.status(400).send(`Contact should only contains firstName, lastName and email!!!`)
+  }        
+})// Update new contact
+app.patch('/contacts/:contactId', async (req, res) => {
+  const updatedDoc = await firebaseHelper.firestore
+      .updateDocument(db, contactsCollection, req.params.contactId, req.body);
+  res.status(204).send(`Update a new contact: ${updatedDoc}`);
+})// View a contact
+app.get('/contacts/:contactId', (req, res) => {
+  firebaseHelper.firestore
+      .getDocument(db, contactsCollection, req.params.contactId)
+      .then(doc => res.status(200).send(doc))
+      .catch(error => res.status(400).send(`Cannot get contact: ${error}`));
+})// View all contacts
+app.get('/contacts', (req, res) => {
+  firebaseHelper.firestore
+      .backup(db, contactsCollection)
+      .then(data => res.status(200).send(data))
+      .catch(error => res.status(400).send(`Cannot get contacts: ${error}`));
+})// Delete a contact 
+app.delete('/contacts/:contactId', async (req, res) => {
+  const deletedContact = await firebaseHelper.firestore
+      .deleteDocument(db, contactsCollection, req.params.contactId);
+  res.status(204).send(`Contact is deleted: ${deletedContact}`);
+})
